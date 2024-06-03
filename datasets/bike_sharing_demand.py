@@ -40,10 +40,4 @@ class Dataset(BaseDataset):
         df = bike_sharing.frame
 
         # Only keep a subsample of variables, the quantitative ones
-        columns = ['temp', 'feel_temp', 'humidity', 'windspeed', 'count']
-        df = df[columns]
-
-        X, y = data_windowing(df)
-
-        # The dictionary defines the keyword arguments for `Objective.set_data`
-        return dict(X=X, y=y)
+        columns = ['temp', 'feel_temp', 'hu
