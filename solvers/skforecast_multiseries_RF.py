@@ -46,6 +46,7 @@ class Solver(BaseSolver):
 
         X_train = self.X[0]
         Y_train = self.y[0]
+        horizon = Y_train.shape[-1]
 
         assert self.X.dim() == 3
 
@@ -53,7 +54,13 @@ class Solver(BaseSolver):
 
         output_list = []
         for x in self.X:
-            x_df = pd.DataFrame(x)
+            x_df_ = pd.DataFrame(x)
+
+            forecaster_model.fit(x_df)
+            y_ = forecaster_model.predict(horizon)
+            output_list.append(y_)
+
+        self.pred = np.array(output_list)
 
     def get_result(self):
         # Return the result from one optimization run.
@@ -61,4 +68,4 @@ class Solver(BaseSolver):
         # keyword arguments for `Objective.evaluate_result`
         # This defines the benchmark's API for solvers' results.
         # it is customizable for each benchmark.
-        return dict(beta=self.beta)
+        return dict(pred=self.pred)

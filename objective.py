@@ -22,7 +22,7 @@ class Objective(BaseObjective):
     # All parameters 'p' defined here are available as 'self.p'.
     # This means the OLS objective will have a parameter `self.whiten_y`.
     parameters = {
-        'whiten_y': [False, True],
+        "whiten_y": [False, True],
     }
 
     # List of packages needed to run the benchmark.
@@ -49,17 +49,19 @@ class Objective(BaseObjective):
         if self.whiten_y:
             y -= y.mean(axis=0)
 
-    def evaluate_result(self, beta):
+    def evaluate_result(self, pred):
         # The keyword arguments of this function are the keys of the
         # dictionary returned by `Solver.get_result`. This defines the
         # benchmark's API to pass solvers' result. This is customizable for
         # each benchmark.
-        diff = self.y - self.X @ beta
+        loss_mse = ((self.y - pred) ** 2).mean()
+        loss_mae = np.abs(self.y - pred).mean()
 
         # This method can return many metrics in a dictionary. One of these
         # metrics needs to be `value` for convergence detection purposes.
         return dict(
-            value=.5 * diff @ diff,
+            value=loss_mse,
+            loss_mae=loss_mae,
         )
 
     def get_one_result(self):
