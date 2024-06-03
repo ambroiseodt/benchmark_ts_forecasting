@@ -3,8 +3,6 @@
 # name `benchmark_utils`, and code defined inside will be importable using
 # the usual import syntax
 
-from typing import List
-
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 
@@ -41,7 +39,18 @@ def mae(X: np.array, y: np.array):
     return diff.mean()
 
 
-def scale_data(*data: List):
+def scale_data(*data: np.array):
+    """Standardize features by removing the mean and scaling to unit variance.
+    The input data is a tuple of matrices containing multivariate time series. For instance,
+    data = [X_train, X_val, X_test] and we fit the standard scaler on X_train and then
+    transform X_val and X_test.
+
+    Args:
+        *data(tuple of np.array): Tuple of np.array.
+
+    Returns:
+        data (List of np.array): List of scaled np.array.
+    """
     data = list(data)
     scaler = StandardScaler()
     scaler.fit(data[0])
