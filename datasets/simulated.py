@@ -9,7 +9,6 @@ with safe_import_context() as import_ctx:
     from benchmark_utils import check_data
 
 
-
 # All datasets must be named `Dataset` and inherit from `BaseDataset`
 class Dataset(BaseDataset):
 
@@ -20,11 +19,11 @@ class Dataset(BaseDataset):
     # the cross product for each key in the dictionary.
     # Any parameters 'param' defined here is available as `self.param`.
     parameters = {
-        'n_features': [5],
-        'n_windows': [10],
-        'window_size': [100],
-        'forecast_size': [10],
-        'random_state': [42],
+        "n_features": [5],
+        "n_windows": [10],
+        "window_size": [100],
+        "horizon": [10],
+        "random_state": [42],
     }
 
     # List of packages needed to run the dataset. See the corresponding
@@ -41,11 +40,11 @@ class Dataset(BaseDataset):
 
         # Split the data
         X_train = rng.randn(self.n_windows, self.n_features, self.window_size)
-        y_train = rng.randn(self.n_windows, self.n_features, self.forecast_size)
+        y_train = rng.randn(self.n_windows, self.n_features, self.horizon)
 
         n_windows_test = int(self.n_windows * 0.5)
         X_test = rng.randn(n_windows_test, self.n_features, self.window_size)
-        y_test = rng.randn(n_windows_test, self.n_features, self.forecast_size)
+        y_test = rng.randn(n_windows_test, self.n_features, self.horizon)
 
         X = (X_train, X_test)
         y = (y_train, y_test)
