@@ -21,8 +21,8 @@ class Dataset(BaseDataset):
     parameters = {
         "n_features": [5],
         "n_windows": [10],
-        "window_size": [100],
-        "horizon": [10],
+        "window_size": [512],
+        "horizon": [96],
         "random_state": [42],
     }
 
