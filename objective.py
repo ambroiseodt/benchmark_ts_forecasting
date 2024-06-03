@@ -59,8 +59,12 @@ class Objective(BaseObjective):
         # dictionary returned by `Solver.get_result`. This defines the
         # benchmark's API to pass solvers' result. This is customizable for
         # each benchmark.
-        loss_mse = ((self.y - pred) ** 2).mean()
-        loss_mae = np.abs(self.y - pred).mean()
+
+        Y_train = self.y[0]
+
+        loss_mse = ((Y_train - pred) ** 2).mean()
+
+        loss_mae = np.abs(Y_train - pred).mean()
 
         # This method can return many metrics in a dictionary. One of these
         # metrics needs to be `value` for convergence detection purposes.
