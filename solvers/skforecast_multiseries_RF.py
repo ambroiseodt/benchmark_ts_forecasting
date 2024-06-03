@@ -1,3 +1,5 @@
+import pandas as pd
+
 from benchopt import BaseSolver, safe_import_context
 
 # Protect the import with `safe_import_context()`. This allows:
@@ -42,13 +44,16 @@ class Solver(BaseSolver):
         # You can also use a `tolerance` or a `callback`, as described in
         # https://benchopt.github.io/performance_curves.html
 
-        L = np.linalg.norm(self.X, ord=2) ** 2
-        step_size = self.scale_step / L
-        beta = np.zeros(self.X.shape[1])
-        for _ in range(n_iter):
-            beta -= step_size * gradient_ols(self.X, self.y, beta)
+        X_train = self.X[0]
+        Y_train = self.y[0]
 
-        self.beta = beta
+        assert self.X.dim() == 3
+
+        forecaster_model = ForecasterAutoregMultiSeries(regressor=LinearRegression())
+
+        output_list = []
+        for x in self.X:
+            x_df = pd.DataFrame(x)
 
     def get_result(self):
         # Return the result from one optimization run.
