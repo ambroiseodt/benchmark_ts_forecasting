@@ -3,7 +3,10 @@
 # name `benchmark_utils`, and code defined inside will be importable using
 # the usual import syntax
 
+from typing import List
+
 import numpy as np
+from sklearn.preprocessing import StandardScaler
 
 
 def mse(X: np.array, y: np.array):
@@ -36,3 +39,13 @@ def mae(X: np.array, y: np.array):
     """
     diff = np.abs(X - y)
     return diff.mean()
+
+
+def scale_data(*data: List):
+    data = list(data)
+    scaler = StandardScaler()
+    scaler.fit(data[0])
+    for i in range(1, len(data)):
+        data[i] = scaler.transform(data[i])
+
+    return data
