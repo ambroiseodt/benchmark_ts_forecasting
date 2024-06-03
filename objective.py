@@ -60,7 +60,7 @@ class Objective(BaseObjective):
         # benchmark's API to pass solvers' result. This is customizable for
         # each benchmark.
 
-        Y_train = self.y[0]
+        Y_train = self.y[0]  # keep only train data
 
         loss_mse = ((Y_train - pred) ** 2).mean()
 
