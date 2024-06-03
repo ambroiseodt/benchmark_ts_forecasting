@@ -17,10 +17,10 @@ class Dataset(BaseDataset):
         os.makedirs(data_path, exist_ok=True)
         os.system(
             f"""
-            wget -O {data_path}/ETTh1.csv "https://drive.google.com/uc?&id=1B7VcTWdIfPl3g17zKXATKF9XQJtNHTtl&export=download"
+            wget -O {data_path}/ETTm1.csv "https://drive.google.com/uc?&id=1B7VcTWdIfPl3g17zKXATKF9XQJtNHTtl&export=download"
             """
         )
-        data = pd.read_csv(os.join(data_path, "ETTh1.csv"))
+        data = pd.read_csv(os.join(data_path, "ETTm1.csv"))
         X = data.drop("OT", axis=1).values
         X = np.array(X).T
 
