@@ -60,6 +60,7 @@ def scale_data(*data: np.array):
 
     return data
 
+
 def data_windowing(
     data: np.ndarray,
     window_size: int,
