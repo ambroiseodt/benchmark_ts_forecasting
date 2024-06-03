@@ -58,3 +58,36 @@ def scale_data(*data: np.array):
         data[i] = scaler.transform(data[i])
 
     return data
+
+def data_windowing(
+    data: np.ndarray,
+    window_size: int,
+    step: int,
+    horizon: int,
+):
+    """
+    Apply windowing to the data
+
+    Parameters
+    ----------
+    data : np.ndarray
+        Data to be windowed
+    window_size : int
+        Size of the window
+    step : int
+        Step size between windows
+    horizon : int
+        Number of steps to forecast
+    """
+    X = np.lib.stride_tricks.sliding_window_view(
+        data, window_shape=window_size, axis=0
+    )[::step]
+
+    labels = np.lib.stride_tricks.sliding_window_view(
+        data[window_size:], window_shape=window_size, axis=0
+    )[::step][:, :, :horizon]
+
+    # Remove the last windows that do not have labels
+    data = X[: -(len(X) - len(labels))]
+
+    return data, labels
