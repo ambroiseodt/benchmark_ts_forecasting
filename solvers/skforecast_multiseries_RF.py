@@ -15,7 +15,7 @@ with safe_import_context() as import_ctx:
 class Solver(BaseSolver):
 
     # Name to select the solver in the CLI and to display the results.
-    name = "skforecast "
+    name = "multiseries"
 
     # List of parameters for the solver. The benchmark will consider
     # the cross product for each key in the dictionary.

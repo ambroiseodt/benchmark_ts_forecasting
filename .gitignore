@@ -17,3 +17,4 @@ benchopt.ini
 coverage.xml
 
 venv/
+dev/
