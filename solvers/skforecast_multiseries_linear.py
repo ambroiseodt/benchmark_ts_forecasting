@@ -1,3 +1,5 @@
+import pandas as pd
+
 from benchopt import BaseSolver, safe_import_context
 
 # Protect the import with `safe_import_context()`. This allows:
@@ -7,7 +9,9 @@ with safe_import_context() as import_ctx:
     import numpy as np
 
     # import your reusable functions here
-    from benchmark_utils import gradient_ols
+
+from skforecast.ForecasterAutoregMultiSeries import ForecasterAutoregMultiSeries
+from sklearn.linear_model import LinearRegression
 
 
 # The benchmark solvers must be named `Solver` and
@@ -15,18 +19,19 @@ with safe_import_context() as import_ctx:
 class Solver(BaseSolver):
 
     # Name to select the solver in the CLI and to display the results.
-    name = 'GD'
+    name = "multiseries"
 
     # List of parameters for the solver. The benchmark will consider
     # the cross product for each key in the dictionary.
     # All parameters 'p' defined here are available as 'self.p'.
     parameters = {
-        'scale_step': [1, 1.99],
+        "scale_step": [1, 1.99],
     }
 
     # List of packages needed to run the solver. See the corresponding
     # section in objective.py
-    requirements = []
+    install_cmd = "conda"
+    requirements = ["sklearn, skforecast"]
 
     def set_objective(self, X, y):
         # Define the information received by each solver from the objective.
@@ -42,13 +47,26 @@ class Solver(BaseSolver):
         # You can also use a `tolerance` or a `callback`, as described in
         # https://benchopt.github.io/performance_curves.html
 
-        L = np.linalg.norm(self.X, ord=2) ** 2
-        step_size = self.scale_step / L
-        beta = np.zeros(self.X.shape[1])
-        for _ in range(n_iter):
-            beta -= step_size * gradient_ols(self.X, self.y, beta)
+        X_train = self.X[0]
+        Y_train = self.y[0]
+        horizon = Y_train.shape[-1]
 
-        self.beta = beta
+        assert X_train.ndim == 3
+
+        forecaster_model = ForecasterAutoregMultiSeries(
+            regressor=LinearRegression(), lags=7
+        )
+
+        output_list = []
+        for x in X_train:
+
+            x_df_ = pd.DataFrame(x.T)  # shape (n_features, n_obs)
+
+            forecaster_model.fit(x_df_)
+            y_ = forecaster_model.predict(steps=horizon)
+            output_list.append(y_.to_numpy().T)
+
+        self.pred = np.array(output_list)
 
     def get_result(self):
         # Return the result from one optimization run.
@@ -56,4 +74,4 @@ class Solver(BaseSolver):
         # keyword arguments for `Objective.evaluate_result`
         # This defines the benchmark's API for solvers' results.
         # it is customizable for each benchmark.
-        return dict(beta=self.beta)
+        return dict(pred=self.pred)
