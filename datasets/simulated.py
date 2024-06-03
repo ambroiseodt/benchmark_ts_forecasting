@@ -6,6 +6,8 @@ from benchopt import BaseDataset, safe_import_context
 # - getting requirements info when all dependencies are not installed.
 with safe_import_context() as import_ctx:
     import numpy as np
+    from benchmark_utils import check_data
+
 
 
 # All datasets must be named `Dataset` and inherit from `BaseDataset`
@@ -38,8 +40,18 @@ class Dataset(BaseDataset):
         rng = np.random.RandomState(self.random_state)
 
         # Split the data
-        X = rng.randn(self.n_features, self.window_size, self.n_windows)
-        y = rng.randn(self.n_features, self.forecast_size, self.n_windows)
+        X_train = rng.randn(self.n_windows, self.n_features, self.window_size)
+        y_train = rng.randn(self.n_windows, self.n_features, self.forecast_size)
+
+        n_windows_test = int(self.n_windows * 0.5)
+        X_test = rng.randn(n_windows_test, self.n_features, self.window_size)
+        y_test = rng.randn(n_windows_test, self.n_features, self.forecast_size)
+
+        X = (X_train, X_test)
+        y = (y_train, y_test)
+
+        X = check_data(X)
+        y = check_data(y)
 
         # The dictionary defines the keyword arguments for `Objective.set_data`
         return dict(X=X, y=y)

@@ -2,14 +2,12 @@ from benchopt import BaseDataset, safe_import_context
 
 from sklearn.datasets import fetch_openml
 
-with safe_import_context() as import_ctx:
-    from benchmark_utils import data_windowing
-
 # Protect the import with `safe_import_context()`. This allows:
 # - skipping import to speed up autocompletion in CLI.
 # - getting requirements info when all dependencies are not installed.
 with safe_import_context() as import_ctx:
     import numpy as np
+    from benchmark_utils import data_windowing
 
 
 # All datasets must be named `Dataset` and inherit from `BaseDataset`
