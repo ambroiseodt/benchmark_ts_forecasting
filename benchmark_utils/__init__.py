@@ -3,5 +3,36 @@
 # name `benchmark_utils`, and code defined inside will be importable using
 # the usual import syntax
 
-def gradient_ols(X, y, beta):
-    return X.T @ (X @ beta - y)
+import numpy as np
+
+
+def mse(X: np.array, y: np.array):
+    """Compute mean square error (MSE).
+    The (potentially multivariate) time series have n_features variables.
+    The forecasting task is done at the horizon n_horizon.
+
+    Args:
+        X (np.array): output of the solver. Shape = (n_features, horizon).
+        y (np.array): ground-truth. Shape = (n_features, horizon).
+
+    Returns:
+        MSE (float).
+    """
+    diff = (X - y) ** 2
+    return diff.mean()
+
+
+def mae(X: np.array, y: np.array):
+    """Compute mean absolute error (MAE).
+    The (potentially multivariate) time series have n_features variables.
+    The forecasting task is done at the horizon n_horizon.
+
+    Args:
+        X (np.array): output of the solver. Shape = (n_features, n_horizon).
+        y (np.array): ground-truth. Shape = (n_features, n_horizon).
+
+    Returns:
+        MAE (float).
+    """
+    diff = np.abs(X - y)
+    return diff.mean()
