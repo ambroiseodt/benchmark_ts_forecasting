@@ -46,8 +46,13 @@ class Objective(BaseObjective):
 
         # `set_data` can be used to preprocess the data. For instance,
         # if `whiten_y` is True, remove the mean of `y`.
-        if self.whiten_y:
-            y -= y.mean(axis=0)
+        # if self.whiten_y:
+        #     out = []
+        #     for y_ in y:
+        #         assert isinstance(y_, np.ndarray)
+        #         y_ -= y_.mean(axis=0)
+        #         out.append(y_)
+        #     self.y = out
 
     def evaluate_result(self, pred):
         # The keyword arguments of this function are the keys of the
