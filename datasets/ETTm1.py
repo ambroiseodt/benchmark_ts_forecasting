@@ -2,7 +2,6 @@ from benchopt import BaseDataset, safe_import_context
 from benchmark_utils import scale_data, data_windowing
 
 with safe_import_context() as import_ctx:
-    import numpy as np
     import pandas as pd
     import os
 
