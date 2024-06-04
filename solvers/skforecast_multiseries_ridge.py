@@ -17,7 +17,7 @@ with safe_import_context() as import_ctx:
 class Solver(BaseSolver):
 
     # Name to select the solver in the CLI and to display the results.
-    name = "skforecast_multiseries_ridge"
+    name = "skforecast_multiseries_linear"
 
     # To run only once the solver
     stopping_criterion = SingleRunCriterion()
@@ -25,7 +25,10 @@ class Solver(BaseSolver):
     # List of parameters for the solver. The benchmark will consider
     # the cross product for each key in the dictionary.
     # All parameters 'p' defined here are available as 'self.p'.
-    parameters = {"lags": [7], "alpha": [1.0]}
+    parameters = {
+        "lags": [5, 10, 20],
+        "alpha": [1e-1, 1e0, 1e1],
+    }
 
     # List of packages needed to run the solver. See the corresponding
     # section in objective.py
