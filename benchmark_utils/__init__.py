@@ -199,9 +199,11 @@ def df_fit_predict(X, model, horizon):
 
     output_list = []
     for x in X:
-        # x of shape (n_features, n_obs)
+        # x is of shape (n_features, n_obs)
         # and the models needs (n_obs, n_features) so we transpose
-        x_df_ = pd.DataFrame(x.T)  # shape (n_features, n_obs)
+        x_df = x.T
+        x_df = x_df.astype(np.float32)  # to avoid pandas error
+        x_df_ = pd.DataFrame(x_df)
         model.fit(x_df_)
         y_ = model.predict(steps=horizon)
         output_list.append(y_.to_numpy().T)
