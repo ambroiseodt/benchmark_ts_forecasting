@@ -43,7 +43,10 @@ class Dataset(BaseDataset):
 
         # Download the data if it does not exist
         if not os.path.exists(os.path.join(data_path, "ETTh1.csv")):
-            url = "https://drive.google.com/uc?&id=1B7VcTWdIfPl3g17zKXATKF9XQJtNHTtl&export=download"
+            url = (
+                "https://drive.google.com/uc?&id=1vOClm_"
+                "t4RgUf8nqherpTfNnB8rrYq14Q&export=download"
+            )
             response = requests.get(url)
             with open(os.path.join(data_path, "ETTm1.csv"), "wb") as f:
                 f.write(response.content)
@@ -58,8 +61,8 @@ class Dataset(BaseDataset):
         n_val = int(n * self.val_ratio)
 
         X_train = data[:n_train]
-        X_val = data[n_train : n_train + n_val]  # noqa
-        X_test = data[n_train + n_val :]  # noqa
+        X_val = data[n_train: n_train + n_val]  # noqa
+        X_test = data[n_train + n_val:]  # noqa
 
         # Need to scale data first
         X_train, X_val, X_test = scale_data(X_train, X_val, X_test)
