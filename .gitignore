@@ -11,7 +11,7 @@ joblib/
 .vscode
 
 # Data files
-datasets/
+data/
 
 # Config files
 benchopt.ini
