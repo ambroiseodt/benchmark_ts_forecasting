@@ -1,5 +1,3 @@
-import pandas as pd
-
 from benchopt import BaseSolver, safe_import_context
 
 # Protect the import with `safe_import_context()`. This allows:
@@ -9,6 +7,8 @@ with safe_import_context() as import_ctx:
     import numpy as np
     from skforecast.ForecasterAutoregMultiSeries import ForecasterAutoregMultiSeries
     from sklearn.linear_model import LinearRegression
+    import pandas as pd
+    from benchmark_utils import df_fit_predict
 
 
 # The benchmark solvers must be named `Solver` and
@@ -53,14 +53,9 @@ class Solver(BaseSolver):
 
         assert X_train.ndim == 3
 
-        output_list = []
-        for x in X_train:
-            x_df_ = pd.DataFrame(x.T)  # shape (n_features, n_obs)
-            self.forecaster_model.fit(x_df_)
-            y_ = self.forecaster_model.predict(steps=horizon)
-            output_list.append(y_.to_numpy().T)
-
-        self.pred = np.array(output_list)
+        self.pred = df_fit_predict(
+            X=X_train, model=self.forecaster_model, horizon=horizon
+        )
 
     def get_result(self):
         # Return the result from one optimization run.
