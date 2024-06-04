@@ -43,7 +43,7 @@ class Solver(BaseSolver):
         # It is customizable for each benchmark.
         self.X, self.y = X, y
         self.forecaster_model = ForecasterAutoregMultiSeries(
-            regressor=Lasso(alpha=self.alpha, l1_ratio=self.l1_ratio),
+            regressor=Lasso(alpha=self.alpha),
             lags=self.lags,  # noqa
         )
 
