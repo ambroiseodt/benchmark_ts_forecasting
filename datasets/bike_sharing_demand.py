@@ -50,8 +50,8 @@ class Dataset(BaseDataset):
         n_val = int(n * self.val_ratio)
 
         X_train = data[:n_train]
-        X_val = data[n_train : n_train + n_val]  # noqa
-        X_test = data[n_train + n_val :]  # noqa
+        X_val = data[n_train: n_train + n_val]  # noqa
+        X_test = data[n_train + n_val:]  # noqa
 
         # Need to scale data first
         X_train, X_val, X_test = scale_data(X_train, X_val, X_test)
