@@ -13,7 +13,7 @@ with safe_import_context() as import_ctx:
 class Dataset(BaseDataset):
 
     # Name to select the dataset in the CLI and to display the results.
-    name = "Bike_Sharing_Demand"
+    name = "bike_sharing_demand"
 
     # List of parameters to generate the datasets. The benchmark will consider
     # the cross product for each key in the dictionary.
@@ -50,8 +50,8 @@ class Dataset(BaseDataset):
         n_val = int(n * self.val_ratio)
 
         X_train = data[:n_train]
-        X_val = data[n_train: n_train + n_val]  # noqa
-        X_test = data[n_train + n_val:]  # noqa
+        X_val = data[n_train : n_train + n_val]  # noqa
+        X_test = data[n_train + n_val :]  # noqa
 
         # Need to scale data first
         X_train, X_val, X_test = scale_data(X_train, X_val, X_test)
