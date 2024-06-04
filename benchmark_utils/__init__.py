@@ -7,6 +7,8 @@
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
+from warnings import warn
+
 
 
 def mse(X: np.array, y: np.array):
@@ -171,6 +173,7 @@ def check_data(data):
     return data
 
 
+
 def df_fit_predict(X, model, horizon):
     """
     Fit the model and predict the next `horizon` steps.
@@ -187,26 +190,28 @@ def df_fit_predict(X, model, horizon):
     --------
     np.array: Array of shape (n_windows, n_features, horizon).
     """
+    
+    def reshape_and_fit(X, model):
+        n_windows, n_features, window_size = X.shape
+        if n_features != 1:
+            warn("The model only accepts 1 feature.")
+            return
+        
+        X_train_reshaped = X.transpose(1, 2, 0).reshape(n_features, -1).T
+        model.fit(pd.DataFrame(X_train_reshaped))
+
     output_list = []
+
     if model.__class__.__name__ == "ForcasterSarimax":
-
-        # Reshape the data to fit the forecaster model that take 2D dataframe as input 
-        n_windows_train, n_features, window_size = X.shape
-
-        if n_features == 1:
-            X_train_reshaped = X.transpose(1, 2, 0).reshape(n_features, -1)
-
-            x_df_ = pd.DataFrame(X_train_reshaped.T)
-            model.fit(x_df_)
-        else:
-            Warning("The model only accepts 1 feature.")
+        reshape_and_fit(X, model)
     
     for x in X:
-        x_df_ = pd.DataFrame(
-            x.T 
-        ) # x of shape (n_features, n_obs) and the models needs (n_obs, n_features)
+        x_df = pd.DataFrame(x.T)  # x: (n_features, n_obs) -> x_df: (n_obs, n_features)
+        
         if model.__class__.__name__ == "ForecasterAutoregMultiOutput":
-            model.fit(x_df_)
-        y_ = model.predict(steps=horizon)
-        output_list.append(y_.to_numpy().T)
+            model.fit(x_df)
+            
+        y_pred = model.predict(steps=horizon)
+        output_list.append(y_pred.to_numpy().T)
+    
     return np.array(output_list)
