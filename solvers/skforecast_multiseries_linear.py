@@ -5,9 +5,9 @@ from benchopt import BaseSolver, safe_import_context
 # - getting requirements info when all dependencies are not installed.
 with safe_import_context() as import_ctx:
     import numpy as np
+    import pandas as pd
     from skforecast.ForecasterAutoregMultiSeries import ForecasterAutoregMultiSeries
     from sklearn.linear_model import LinearRegression
-    import pandas as pd
     from benchmark_utils import df_fit_predict
 
 
