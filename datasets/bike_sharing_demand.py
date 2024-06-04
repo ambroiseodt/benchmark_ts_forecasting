@@ -6,7 +6,7 @@ from sklearn.datasets import fetch_openml
 # - skipping import to speed up autocompletion in CLI.
 # - getting requirements info when all dependencies are not installed.
 with safe_import_context() as import_ctx:
-    from benchmark_utils import data_windowing
+    from benchmark_utils import data_windowing, scale_data
 
 
 # All datasets must be named `Dataset` and inherit from `BaseDataset`
@@ -35,7 +35,9 @@ class Dataset(BaseDataset):
 
         # Fetch dataset from OpenML
         # https://www.openml.org/search?type=data&status=active&id=44063
-        bike_sharing = fetch_openml("Bike_Sharing_Demand", version=2, as_frame=True)
+        bike_sharing = fetch_openml(
+            "Bike_Sharing_Demand", version=2, as_frame=True
+        )  # noqa
         df = bike_sharing.frame
 
         # Only keep a subsample of variables, the quantitative ones
@@ -48,8 +50,8 @@ class Dataset(BaseDataset):
         n_val = int(n * self.val_ratio)
 
         X_train = data[:n_train]
-        X_val = data[n_train : n_train + n_val]
-        X_test = data[n_train + n_val :]
+        X_val = data[n_train : n_train + n_val]  # noqa
+        X_test = data[n_train + n_val :]  # noqa
 
         # Need to scale data first
         X_train, X_val, X_test = scale_data(X_train, X_val, X_test)

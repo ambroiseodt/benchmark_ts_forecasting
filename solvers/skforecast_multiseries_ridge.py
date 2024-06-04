@@ -1,10 +1,13 @@
 from benchopt import BaseSolver, safe_import_context
+from benchopt.stopping_criterion import SingleRunCriterion
 
 # Protect the import with `safe_import_context()`. This allows:
 # - skipping import to speed up autocompletion in CLI.
 # - getting requirements info when all dependencies are not installed.
 with safe_import_context() as import_ctx:
-    from skforecast.ForecasterAutoregMultiSeries import ForecasterAutoregMultiSeries
+    from skforecast.ForecasterAutoregMultiSeries import (
+        ForecasterAutoregMultiSeries,
+    )
     from sklearn.linear_model import Ridge
     from benchmark_utils import df_fit_predict
 
@@ -17,7 +20,7 @@ class Solver(BaseSolver):
     name = "skforecast_multiseries_ridge"
 
     # To run only once the solver
-    # sampling_strategy = "run_once"
+    stopping_criterion = SingleRunCriterion()
 
     # List of parameters for the solver. The benchmark will consider
     # the cross product for each key in the dictionary.

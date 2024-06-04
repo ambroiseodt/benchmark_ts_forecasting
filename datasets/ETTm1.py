@@ -6,10 +6,9 @@ from benchmark_utils import scale_data, data_windowing
 # - skipping import to speed up autocompletion in CLI.
 # - getting requirements info when all dependencies are not installed.
 with safe_import_context() as import_ctx:
-
+    import numpy as np
     import pandas as pd
     import os
-
 
 
 # All datasets must be named `Dataset` and inherit from `BaseDataset`
@@ -43,29 +42,27 @@ class Dataset(BaseDataset):
         os.system(
             f"""
             wget -O {data_path}/ETTm1.csv "https://drive.google.com/uc?&id=1B7VcTWdIfPl3g17zKXATKF9XQJtNHTtl&export=download"
-            """
+            """  # noqa
         )
 
         data = pd.read_csv(os.path.join(data_path, "ETTh1.csv"))
-
+        data = data.to_numpy()
+        data[:, 0] = data[:, 0].astype(np.datetime64).astype(np.float32)
 
         # Split the data
         n = len(data)
         n_train = int(n * self.train_ratio)
         n_val = int(n * self.val_ratio)
 
-
-
         X_train = data[:n_train]
-        X_val = data[n_train : n_train + n_val]
-        X_test = data[n_train + n_val :]
+        X_val = data[n_train : n_train + n_val]  # noqa
+        X_test = data[n_train + n_val :]  # noqa
 
         # Need to scale data first
         X_train, X_val, X_test = scale_data(X_train, X_val, X_test)
 
         # Data shape is (n_windows, n_features, window_size)
         X_train, y_train = data_windowing(
-
             X_train, self.window_size, self.stride, self.horizon
         )
 
