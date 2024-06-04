@@ -8,7 +8,9 @@ with safe_import_context() as import_ctx:
     from skforecast.ForecasterAutoregMultiSeries import (
         ForecasterAutoregMultiSeries,
     )
-    from sklearn.linear_model import LinearRegression
+    from sklearn.linear_model import (
+        ElasticNet,
+    )
     from benchmark_utils import df_fit_predict
 
 
@@ -27,6 +29,8 @@ class Solver(BaseSolver):
     # All parameters 'p' defined here are available as 'self.p'.
     parameters = {
         "lags": [5, 10, 20],
+        "alpha": [1e-1, 1e0, 1e1],
+        "l1_ratio": [0.1, 0.5, 0.9],
     }
 
     # List of packages needed to run the solver. See the corresponding
@@ -42,7 +46,8 @@ class Solver(BaseSolver):
         # It is customizable for each benchmark.
         self.X, self.y = X, y
         self.forecaster_model = ForecasterAutoregMultiSeries(
-            regressor=LinearRegression(), lags=self.lags
+            regressor=ElasticNet(alpha=self.alpha, l1_ratio=self.l1_ratio),
+            lags=self.lags,
         )
 
     def run(self, n_iter):
