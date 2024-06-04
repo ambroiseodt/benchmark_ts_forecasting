@@ -217,8 +217,6 @@ def df_fit_predict(X, model, horizon):
         model.fit(x_df_)
         y_ = model.predict(steps=horizon)
         output_list.append(y_.to_numpy().T)
-        x_df = pd.DataFrame(x.T)  # x: (n_features, n_obs)
-        x_df = x_df.transpose()  # x_df: (n_obs, n_features)
 
         if model.__class__.__name__ == "ForecasterAutoregMultiOutput":
             model.fit(x_df)
