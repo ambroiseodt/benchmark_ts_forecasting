@@ -37,6 +37,9 @@ class Solver(BaseSolver):
         # passing the objective to the solver.
         # It is customizable for each benchmark.
         self.X, self.y = X, y
+        self.forecaster_model = ForecasterAutoregMultiSeries(
+            regressor=LinearRegression(), lags=7
+        )
 
     def run(self, n_iter):
         # This is the function that is called to evaluate the solver.
@@ -50,17 +53,11 @@ class Solver(BaseSolver):
 
         assert X_train.ndim == 3
 
-        forecaster_model = ForecasterAutoregMultiSeries(
-            regressor=LinearRegression(), lags=7
-        )
-
         output_list = []
         for x in X_train:
-
             x_df_ = pd.DataFrame(x.T)  # shape (n_features, n_obs)
-
-            forecaster_model.fit(x_df_)
-            y_ = forecaster_model.predict(steps=horizon)
+            self.forecaster_model.fit(x_df_)
+            y_ = self.forecaster_model.predict(steps=horizon)
             output_list.append(y_.to_numpy().T)
 
         self.pred = np.array(output_list)
