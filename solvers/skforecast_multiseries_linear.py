@@ -1,4 +1,5 @@
 from benchopt import BaseSolver, safe_import_context
+from benchopt.stopping_criterion import SingleRunCriterion
 
 # Protect the import with `safe_import_context()`. This allows:
 # - skipping import to speed up autocompletion in CLI.
@@ -17,12 +18,13 @@ class Solver(BaseSolver):
     name = "skforecast_multiseries_linear"
 
     # To run only once the solver
-    # sampling_strategy = "run_once"
+    stopping_criterion = SingleRunCriterion()
 
     # List of parameters for the solver. The benchmark will consider
     # the cross product for each key in the dictionary.
     # All parameters 'p' defined here are available as 'self.p'.
     parameters = {
+        "lags": [7],
         "lags": [7],
     }
 
@@ -39,6 +41,7 @@ class Solver(BaseSolver):
         # It is customizable for each benchmark.
         self.X, self.y = X, y
         self.forecaster_model = ForecasterAutoregMultiSeries(
+            regressor=LinearRegression(), lags=self.lags
             regressor=LinearRegression(), lags=self.lags
         )
 
