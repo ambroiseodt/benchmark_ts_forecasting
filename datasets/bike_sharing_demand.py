@@ -69,5 +69,17 @@ class Dataset(BaseDataset):
             X_test, self.window_size, self.stride, self.horizon
         )
 
+        length = 10
+        X_train = X_train[:length]
+        y_train = y_train[:length]
+
+        X_val = X_val[:length]
+        y_val = y_val[:length]
+
+        X_test = X_test[:length]
+        y_test = y_test[:length]
+
+        print(X_train.shape, y_train.shape)
+
         # The dictionary defines the keyword arguments for `Objective.set_data`
         return dict(X=(X_train, X_val, X_test), y=(y_train, y_val, y_test))
