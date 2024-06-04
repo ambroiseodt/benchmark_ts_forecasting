@@ -156,7 +156,7 @@ def check_data(data):
         val_shape = val.shape
         if (
             train_shape[1:] != val_shape[1:]
-            or train_shape[1:] != test_shape[1:]
+            or train_shape[1:] != test_shape[1:]  # noqa
         ):
             raise ValueError(
                 "The second and third dimensions (n_features, window_size) "
@@ -209,6 +209,14 @@ def df_fit_predict(X, model, horizon):
         reshape_and_fit(X, model)
 
     for x in X:
+        # x is of shape (n_features, n_obs)
+        # and the models needs (n_obs, n_features) so we transpose
+        x_df = x.T
+        x_df = x_df.astype(np.float32)  # to avoid pandas error
+        x_df_ = pd.DataFrame(x_df)
+        model.fit(x_df_)
+        y_ = model.predict(steps=horizon)
+        output_list.append(y_.to_numpy().T)
         x_df = pd.DataFrame(x.T)  # x: (n_features, n_obs)
         x_df = x_df.transpose()  # x_df: (n_obs, n_features)
 
