@@ -1,14 +1,12 @@
-import pandas as pd
-
 from benchopt import BaseSolver, safe_import_context
 
 # Protect the import with `safe_import_context()`. This allows:
 # - skipping import to speed up autocompletion in CLI.
 # - getting requirements info when all dependencies are not installed.
 with safe_import_context() as import_ctx:
-    import numpy as np
     from skforecast.ForecasterAutoregMultiSeries import ForecasterAutoregMultiSeries
     from sklearn.linear_model import LinearRegression
+    from benchmark_utils import df_fit_predict
 
 
 # The benchmark solvers must be named `Solver` and
@@ -16,13 +14,16 @@ with safe_import_context() as import_ctx:
 class Solver(BaseSolver):
 
     # Name to select the solver in the CLI and to display the results.
-    name = "multiseries"
+    name = "skforecast_multiseries_linear"
+
+    # To run only once the solver
+    # sampling_strategy = "run_once"
 
     # List of parameters for the solver. The benchmark will consider
     # the cross product for each key in the dictionary.
     # All parameters 'p' defined here are available as 'self.p'.
     parameters = {
-        "scale_step": [1, 1.99],
+        "lags": [7],
     }
 
     # List of packages needed to run the solver. See the corresponding
@@ -38,7 +39,7 @@ class Solver(BaseSolver):
         # It is customizable for each benchmark.
         self.X, self.y = X, y
         self.forecaster_model = ForecasterAutoregMultiSeries(
-            regressor=LinearRegression(), lags=7
+            regressor=LinearRegression(), lags=self.lags
         )
 
     def run(self, n_iter):
@@ -53,14 +54,9 @@ class Solver(BaseSolver):
 
         assert X_train.ndim == 3
 
-        output_list = []
-        for x in X_train:
-            x_df_ = pd.DataFrame(x.T)  # shape (n_features, n_obs)
-            self.forecaster_model.fit(x_df_)
-            y_ = self.forecaster_model.predict(steps=horizon)
-            output_list.append(y_.to_numpy().T)
-
-        self.pred = np.array(output_list)
+        self.pred = df_fit_predict(
+            X=X_train, model=self.forecaster_model, horizon=horizon
+        )
 
     def get_result(self):
         # Return the result from one optimization run.
