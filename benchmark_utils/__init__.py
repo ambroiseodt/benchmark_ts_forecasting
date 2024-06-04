@@ -5,6 +5,7 @@
 
 
 import numpy as np
+import pandas as pd
 from sklearn.preprocessing import StandardScaler
 
 
@@ -93,8 +94,8 @@ def data_windowing(
     data = X[: -(len(X) - len(labels))]
 
     return data, labels
-  
- 
+
+
 def check_data(data):
     """
     Ensure the given data is a tuple of size 3 (train, val, test)
@@ -128,32 +129,72 @@ def check_data(data):
 
     # Check if train and test are numpy arrays
     if not isinstance(train, np.ndarray) or not isinstance(test, np.ndarray):
-        raise ValueError("Train and test elements of the data tuple must be numpy arrays.")
+        raise ValueError(
+            "Train and test elements of the data tuple must be numpy arrays."
+        )
 
     # Check dimensions for train and test
     train_shape = train.shape
     test_shape = test.shape
 
     if len(train_shape) != 3 or len(test_shape) != 3:
-        raise ValueError("Train and test datasets must have 3 dimensions (n_windows, n_features, window_size).")
+        raise ValueError(
+            "Train and test datasets must have 3 dimensions (n_windows, n_features, window_size)."
+        )
 
     # Check if val is None or a numpy array
     if val is not None:
         if not isinstance(val, np.ndarray):
-            raise ValueError("Validation element of the data tuple must be a numpy array or None.")
+            raise ValueError(
+                "Validation element of the data tuple must be a numpy array or None."
+            )
 
         # Check dimensions for val
         val_shape = val.shape
         if len(val_shape) != 3:
-            raise ValueError("Validation dataset must have 3 dimensions (n_windows, n_features, window_size).")
+            raise ValueError(
+                "Validation dataset must have 3 dimensions (n_windows, n_features, window_size)."
+            )
 
         # Check if the second and third dimensions (n_features, window_size) match across all datasets
         if train_shape[1:] != val_shape[1:] or train_shape[1:] != test_shape[1:]:
-            raise ValueError("The second and third dimensions (n_features, window_size) must match across train, val, and test datasets.")
+            raise ValueError(
+                "The second and third dimensions (n_features, window_size) must match across train, val, and test datasets."
+            )
     else:
         # Check if the second and third dimensions (n_features, window_size) match between train and test
         if train_shape[1:] != test_shape[1:]:
-            raise ValueError("The second and third dimensions (n_features, window_size) must match across train and test datasets.")
+            raise ValueError(
+                "The second and third dimensions (n_features, window_size) must match across train and test datasets."
+            )
 
     return data
-  
+
+
+def df_fit_predict(X, model, horizon):
+    """
+    Fit the model and predict the next `horizon` steps.
+    Works with skforecast by converting each window (for a specific time step)
+    to a DataFrame.
+
+    Parameters:
+    -----------
+    X (np.array): Array of shape (n_windows, n_features, window_size).
+    model (skforecast.ForecasterAutoregMultiSeries): Forecasting model.
+    horizon (int): Number of steps to forecast.
+
+    Returns:
+    --------
+    np.array: Array of shape (n_windows, n_features, horizon).
+    """
+
+    output_list = []
+    for x in X:
+        x_df_ = pd.DataFrame(
+            x.T
+        )  # x of shape (n_features, n_obs) and the models needs (n_obs, n_features)
+        x_df_ = pd.DataFrame(x.T)  # shape (n_features, n_obs)
+        model.fit(x_df_)
+        y_ = model.predict(steps=horizon)
+        output_list.append(y_.to_numpy().T)
+    return np.array(output_list)

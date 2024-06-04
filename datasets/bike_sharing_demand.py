@@ -6,7 +6,6 @@ from sklearn.datasets import fetch_openml
 # - skipping import to speed up autocompletion in CLI.
 # - getting requirements info when all dependencies are not installed.
 with safe_import_context() as import_ctx:
-    import numpy as np
     from benchmark_utils import data_windowing
 
 
@@ -19,11 +18,11 @@ class Dataset(BaseDataset):
     # List of parameters to generate the datasets. The benchmark will consider
     # the cross product for each key in the dictionary.
     # Any parameters 'param' defined here is available as `self.param`.
-    parameters = {
-        'train_size': [0.7],
-        'window_size': [100],
-        'stride': [1]
-    }
+    parameters = {"window_size": [512], "horizon": [96], "stride": [1]}
+
+    train_ratio = 0.7
+    val_ratio = 0.20
+    test_ratio = 0.10
 
     # List of packages needed to run the dataset. See the corresponding
     # section in objective.py
@@ -40,10 +39,33 @@ class Dataset(BaseDataset):
         df = bike_sharing.frame
 
         # Only keep a subsample of variables, the quantitative ones
-        columns = ['temp', 'feel_temp', 'humidity', 'windspeed', 'count']
-        df = df[columns]
+        columns = ["temp", "feel_temp", "humidity", "windspeed", "count"]
+        data = df[columns]
 
-        X, y = data_windowing(df)
+        # Split the data
+        n = len(data)
+        n_train = int(n * self.train_ratio)
+        n_val = int(n * self.val_ratio)
+
+        X_train = data[:n_train]
+        X_val = data[n_train : n_train + n_val]
+        X_test = data[n_train + n_val :]
+
+        # Need to scale data first
+        X_train, X_val, X_test = scale_data(X_train, X_val, X_test)
+
+        # Data shape is (n_windows, n_features, window_size)
+        X_train, y_train = data_windowing(
+            X_train, self.window_size, self.stride, self.horizon
+        )
+
+        X_val, y_val = data_windowing(
+            X_val, self.window_size, self.stride, self.horizon
+        )
+
+        X_test, y_test = data_windowing(
+            X_test, self.window_size, self.stride, self.horizon
+        )
 
         # The dictionary defines the keyword arguments for `Objective.set_data`
-        return dict(X=X, y=y)
+        return dict(X=(X_train, X_val, X_test), y=(y_train, y_val, y_test))
