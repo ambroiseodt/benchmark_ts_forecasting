@@ -7,6 +7,7 @@
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
+from warnings import warn
 
 
 def mse(X: np.array, y: np.array):
@@ -153,14 +154,6 @@ def check_data(data):
 
         # Check dimensions for val
         val_shape = val.shape
-        if len(val_shape) != 3:
-            raise ValueError(
-                "Validation dataset must have 3 dimensions (n_windows, "
-                "n_features, window_size)."
-            )
-
-        # Check if the second and third dimensions (n_features, window_size)
-        # match across all datasets
         if (
             train_shape[1:] != val_shape[1:]
             or train_shape[1:] != test_shape[1:]  # noqa
@@ -198,18 +191,39 @@ def df_fit_predict(X, model, horizon):
     np.array: Array of shape (n_windows, n_features, horizon).
     """
 
+    def reshape_and_fit(X, model):
+        """Reshape the data and fit the model.
+        The model only accepts 1 feature. The data is reshaped to
+        (n_obs, n_features) and fitted to the model."""
+        n_windows, n_features, window_size = X.shape
+        if n_features != 1:
+            warn("The model only accepts 1 feature.")
+            return
+
+        X_train_reshaped = X.transpose(1, 2, 0).reshape(n_features, -1).T
+        model.fit(pd.DataFrame(X_train_reshaped))
+
     output_list = []
+
+    if model.__class__.__name__ == "ForcasterSarimax":
+        reshape_and_fit(X, model)
+
     for x in X:
         # x is of shape (n_features, n_obs)
         # and the models needs (n_obs, n_features) so we transpose
-<<<<<<< HEAD
-        x_df_ = pd.DataFrame(x.T)
-=======
         x_df = x.T
         x_df = x_df.astype(np.float32)  # to avoid pandas error
         x_df_ = pd.DataFrame(x_df)
->>>>>>> origin/main
         model.fit(x_df_)
         y_ = model.predict(steps=horizon)
         output_list.append(y_.to_numpy().T)
+        x_df = pd.DataFrame(x.T)  # x: (n_features, n_obs)
+        x_df = x_df.transpose()  # x_df: (n_obs, n_features)
+
+        if model.__class__.__name__ == "ForecasterAutoregMultiOutput":
+            model.fit(x_df)
+
+        y_pred = model.predict(steps=horizon)
+        output_list.append(y_pred.to_numpy().T)
+
     return np.array(output_list)
