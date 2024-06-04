@@ -25,6 +25,7 @@ class Solver(BaseSolver):
     # All parameters 'p' defined here are available as 'self.p'.
     parameters = {
         "lags": [7],
+        "lags": [7],
     }
 
     # List of packages needed to run the solver. See the corresponding
@@ -40,6 +41,7 @@ class Solver(BaseSolver):
         # It is customizable for each benchmark.
         self.X, self.y = X, y
         self.forecaster_model = ForecasterAutoregMultiSeries(
+            regressor=LinearRegression(), lags=self.lags
             regressor=LinearRegression(), lags=self.lags
         )
 
