@@ -7,11 +7,8 @@ from benchopt import BaseSolver, safe_import_context
 # - getting requirements info when all dependencies are not installed.
 with safe_import_context() as import_ctx:
     import numpy as np
-
-    # import your reusable functions here
-
-from skforecast.ForecasterAutoregMultiSeries import ForecasterAutoregMultiSeries
-from sklearn.linear_model import LinearRegression
+    from skforecast.ForecasterAutoregMultiSeries import ForecasterAutoregMultiSeries
+    from sklearn.linear_model import LinearRegression
 
 
 # The benchmark solvers must be named `Solver` and
