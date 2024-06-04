@@ -52,8 +52,9 @@ class Dataset(BaseDataset):
                 f.write(response.content)
 
         data = pd.read_csv(os.path.join(data_path, "exchange_rate.csv"))
+        data["date"] = pd.to_datetime(data["date"])
         data = data.to_numpy()
-        data[:, 0] = data[:, 0].astype(np.datetime64).astype(np.float32)
+        data[:, 0] = data[:, 0].astype(np.datetime64)
 
         # Split the data
         n = len(data)
