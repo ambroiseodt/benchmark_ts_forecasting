@@ -201,7 +201,6 @@ def df_fit_predict(X, model, horizon):
     for x in X:
         # x of shape (n_features, n_obs)
         # and the models needs (n_obs, n_features) so we transpose
-        x_df_ = pd.DataFrame(x.T)
         x_df_ = pd.DataFrame(x.T)  # shape (n_features, n_obs)
         model.fit(x_df_)
         y_ = model.predict(steps=horizon)
