@@ -5,7 +5,7 @@ from benchopt import BaseSolver, safe_import_context
 # - getting requirements info when all dependencies are not installed.
 with safe_import_context() as import_ctx:
     from skforecast.ForecasterAutoregMultiSeries import ForecasterAutoregMultiSeries
-    from sklearn.linear_model import LinearRegression
+    from sklearn.linear_model import Ridge
     from benchmark_utils import df_fit_predict
 
 
@@ -14,7 +14,7 @@ with safe_import_context() as import_ctx:
 class Solver(BaseSolver):
 
     # Name to select the solver in the CLI and to display the results.
-    name = "skforecast_multiseries_linear"
+    name = "skforecast_multiseries_ridge"
 
     # To run only once the solver
     # sampling_strategy = "run_once"
@@ -22,9 +22,7 @@ class Solver(BaseSolver):
     # List of parameters for the solver. The benchmark will consider
     # the cross product for each key in the dictionary.
     # All parameters 'p' defined here are available as 'self.p'.
-    parameters = {
-        "lags": [7],
-    }
+    parameters = {"lags": [7], "alpha": [1.0]}
 
     # List of packages needed to run the solver. See the corresponding
     # section in objective.py
@@ -39,7 +37,7 @@ class Solver(BaseSolver):
         # It is customizable for each benchmark.
         self.X, self.y = X, y
         self.forecaster_model = ForecasterAutoregMultiSeries(
-            regressor=LinearRegression(), lags=self.lags
+            regressor=Ridge(alpha=self.alpha), lags=self.lags
         )
 
     def run(self, n_iter):
