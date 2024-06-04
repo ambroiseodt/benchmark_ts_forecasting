@@ -176,10 +176,23 @@ def df_fit_predict(X, model, horizon):
     Fit the model and predict the next `horizon` steps.
     Works with skforecast by converting each window (for a specific time step)
     to a DataFrame.
+
+    Parameters:
+    -----------
+    X (np.array): Array of shape (n_windows, n_features, window_size).
+    model (skforecast.ForecasterAutoregMultiSeries): Forecasting model.
+    horizon (int): Number of steps to forecast.
+
+    Returns:
+    --------
+    np.array: Array of shape (n_windows, n_features, horizon).
     """
 
     output_list = []
     for x in X:
+        x_df_ = pd.DataFrame(
+            x.T
+        )  # x of shape (n_features, n_obs) and the models needs (n_obs, n_features)
         x_df_ = pd.DataFrame(x.T)  # shape (n_features, n_obs)
         model.fit(x_df_)
         y_ = model.predict(steps=horizon)
