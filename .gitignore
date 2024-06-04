@@ -10,6 +10,9 @@ joblib/
 # IDE specific folders
 .vscode
 
+# Data files
+datasets/
+
 # Config files
 benchopt.ini
 
