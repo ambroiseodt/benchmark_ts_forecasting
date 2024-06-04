@@ -6,6 +6,7 @@ from benchopt import BaseDataset, safe_import_context
 # - getting requirements info when all dependencies are not installed.
 with safe_import_context() as import_ctx:
     import numpy as np
+    from benchmark_utils import check_data
 
 
 # All datasets must be named `Dataset` and inherit from `BaseDataset`
@@ -18,11 +19,11 @@ class Dataset(BaseDataset):
     # the cross product for each key in the dictionary.
     # Any parameters 'param' defined here is available as `self.param`.
     parameters = {
-        'n_samples, n_features': [
-            (1000, 500),
-            (5000, 200),
-        ],
-        'random_state': [27],
+        "n_features": [5],
+        "n_windows": [10],
+        "window_size": [512],
+        "horizon": [96],
+        "random_state": [42],
     }
 
     # List of packages needed to run the dataset. See the corresponding
@@ -36,8 +37,20 @@ class Dataset(BaseDataset):
 
         # Generate pseudorandom data using `numpy`.
         rng = np.random.RandomState(self.random_state)
-        X = rng.randn(self.n_samples, self.n_features)
-        y = rng.randn(self.n_samples)
+
+        # Split the data
+        X_train = rng.randn(self.n_windows, self.n_features, self.window_size)
+        y_train = rng.randn(self.n_windows, self.n_features, self.horizon)
+
+        n_windows_test = int(self.n_windows * 0.5)
+        X_test = rng.randn(n_windows_test, self.n_features, self.window_size)
+        y_test = rng.randn(n_windows_test, self.n_features, self.horizon)
+
+        X = (X_train, X_test)
+        y = (y_train, y_test)
+
+        X = check_data(X)
+        y = check_data(y)
 
         # The dictionary defines the keyword arguments for `Objective.set_data`
         return dict(X=X, y=y)

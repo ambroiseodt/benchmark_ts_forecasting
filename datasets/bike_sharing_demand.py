@@ -1,34 +1,19 @@
 from benchopt import BaseDataset, safe_import_context
-from benchmark_utils import scale_data, data_windowing
 
-<<<<<<< HEAD
-with safe_import_context() as import_ctx:
-    import numpy as np
-=======
+from sklearn.datasets import fetch_openml
+
 # Protect the import with `safe_import_context()`. This allows:
 # - skipping import to speed up autocompletion in CLI.
 # - getting requirements info when all dependencies are not installed.
 with safe_import_context() as import_ctx:
->>>>>>> main
-    import pandas as pd
-    import os
+    from benchmark_utils import data_windowing
 
 
-<<<<<<< HEAD
-class Dataset(BaseDataset):
-    name = "ETTm1"
-
-    requirements = ["numpy", "pandas"]
-
-    def get_data(self):
-        # Load the data
-        data_path = os.path.join("./data/")
-=======
 # All datasets must be named `Dataset` and inherit from `BaseDataset`
 class Dataset(BaseDataset):
 
     # Name to select the dataset in the CLI and to display the results.
-    name = "ETTh1"
+    name = "Bike_Sharing_Demand"
 
     # List of parameters to generate the datasets. The benchmark will consider
     # the cross product for each key in the dictionary.
@@ -41,36 +26,26 @@ class Dataset(BaseDataset):
 
     # List of packages needed to run the dataset. See the corresponding
     # section in objective.py
-    requirements = ["numpy"]
+    requirements = []
 
     def get_data(self):
         # The return arguments of this function are passed as keyword arguments
         # to `Objective.set_data`. This defines the benchmark's
         # API to pass data. It is customizable for each benchmark.
 
-        # Load the data
-        data_path = os.path.join(os.path.dirname(__file__), "data/")
->>>>>>> main
-        os.makedirs(data_path, exist_ok=True)
-        os.system(
-            f"""
-            wget -O {data_path}/ETTm1.csv "https://drive.google.com/uc?&id=1B7VcTWdIfPl3g17zKXATKF9XQJtNHTtl&export=download"
-            """
-        )
-<<<<<<< HEAD
-        data = pd.read_csv(os.join(data_path, "ETTm1.csv"))
-=======
-        data = pd.read_csv(os.path.join(data_path, "ETTh1.csv"))
+        # Fetch dataset from OpenML
+        # https://www.openml.org/search?type=data&status=active&id=44063
+        bike_sharing = fetch_openml("Bike_Sharing_Demand", version=2, as_frame=True)
+        df = bike_sharing.frame
 
->>>>>>> main
+        # Only keep a subsample of variables, the quantitative ones
+        columns = ["temp", "feel_temp", "humidity", "windspeed", "count"]
+        data = df[columns]
+
         # Split the data
         n = len(data)
         n_train = int(n * self.train_ratio)
         n_val = int(n * self.val_ratio)
-<<<<<<< HEAD
-        n_test = n - n_train - n_val
-=======
->>>>>>> main
 
         X_train = data[:n_train]
         X_val = data[n_train : n_train + n_val]
@@ -81,17 +56,6 @@ class Dataset(BaseDataset):
 
         # Data shape is (n_windows, n_features, window_size)
         X_train, y_train = data_windowing(
-<<<<<<< HEAD
-            X_train, self.window_size, self.step, self.horizon
-        )
-
-        X_val, y_val = data_windowing(X_val, self.window_size, self.step, self.horizon)
-
-        X_test, y_test = data_windowing(
-            X_test, self.window_size, self.step, self.horizon
-        )
-
-=======
             X_train, self.window_size, self.stride, self.horizon
         )
 
@@ -104,5 +68,4 @@ class Dataset(BaseDataset):
         )
 
         # The dictionary defines the keyword arguments for `Objective.set_data`
->>>>>>> main
         return dict(X=(X_train, X_val, X_test), y=(y_train, y_val, y_test))
