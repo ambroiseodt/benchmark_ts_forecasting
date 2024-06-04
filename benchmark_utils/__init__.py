@@ -187,14 +187,26 @@ def df_fit_predict(X, model, horizon):
     --------
     np.array: Array of shape (n_windows, n_features, horizon).
     """
-
     output_list = []
+    if model.__class__.__name__ == "ForcasterSarimax":
+
+        # Reshape the data to fit the forecaster model that take 2D dataframe as input 
+        n_windows_train, n_features, window_size = X.shape
+
+        if n_features == 1:
+            X_train_reshaped = X.transpose(1, 2, 0).reshape(n_features, -1)
+
+            x_df_ = pd.DataFrame(X_train_reshaped.T)
+            model.fit(x_df_)
+        else:
+            Warning("The model only accepts 1 feature.")
+    
     for x in X:
         x_df_ = pd.DataFrame(
-            x.T
-        )  # x of shape (n_features, n_obs) and the models needs (n_obs, n_features)
-        x_df_ = pd.DataFrame(x.T)  # shape (n_features, n_obs)
-        model.fit(x_df_)
+            x.T 
+        ) # x of shape (n_features, n_obs) and the models needs (n_obs, n_features)
+        if model.__class__.__name__ == "ForecasterAutoregMultiOutput":
+            model.fit(x_df_)
         y_ = model.predict(steps=horizon)
         output_list.append(y_.to_numpy().T)
     return np.array(output_list)
