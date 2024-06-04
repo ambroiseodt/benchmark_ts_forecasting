@@ -1,6 +1,8 @@
 from benchopt import BaseDataset, safe_import_context
 from benchmark_utils import scale_data, data_windowing
 
+
+
 # Protect the import with `safe_import_context()`. This allows:
 # - skipping import to speed up autocompletion in CLI.
 # - getting requirements info when all dependencies are not installed.
@@ -33,6 +35,7 @@ class Dataset(BaseDataset):
         # to `Objective.set_data`. This defines the benchmark's
         # API to pass data. It is customizable for each benchmark.
 
+
         # Load the data
         data_path = os.path.join(os.path.dirname(__file__), "data/")
         os.makedirs(data_path, exist_ok=True)
@@ -41,12 +44,14 @@ class Dataset(BaseDataset):
             wget -O {data_path}/ETTh1.csv "https://drive.google.com/uc?&id=1vOClm_t4RgUf8nqherpTfNnB8rrYq14Q&export=download"
             """
         )
+
         data = pd.read_csv(os.path.join(data_path, "ETTh1.csv"))
 
         # Split the data
         n = len(data)
         n_train = int(n * self.train_ratio)
         n_val = int(n * self.val_ratio)
+
 
         X_train = data[:n_train]
         X_val = data[n_train : n_train + n_val]
@@ -57,6 +62,7 @@ class Dataset(BaseDataset):
 
         # Data shape is (n_windows, n_features, window_size)
         X_train, y_train = data_windowing(
+
             X_train, self.window_size, self.stride, self.horizon
         )
 
@@ -69,4 +75,5 @@ class Dataset(BaseDataset):
         )
 
         # The dictionary defines the keyword arguments for `Objective.set_data`
+
         return dict(X=(X_train, X_val, X_test), y=(y_train, y_val, y_test))
