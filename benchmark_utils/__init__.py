@@ -43,9 +43,9 @@ def mae(X: np.array, y: np.array):
 
 def scale_data(*data: np.array):
     """Standardize features by removing the mean and scaling to unit variance.
-    The input data is a tuple of matrices containing multivariate time series. For instance,
-    data = [X_train, X_val, X_test] and we fit the standard scaler on X_train and then
-    transform X_val and X_test.
+    The input data is a tuple of matrices containing multivariate time series.
+    For instance, data = [X_train, X_val, X_test] and we fit the standard
+    scaler on X_train and then transform X_val and X_test.
 
     Args:
         *data(tuple of np.array): Tuple of np.array.
@@ -106,7 +106,8 @@ def check_data(data):
 
     Parameters:
     -----------
-    data (tuple or list): A tuple or list containing train, val, and test datasets.
+    data (tuple or list): A tuple or list containing train, val,
+    and test datasets.
 
     Returns:
     --------
@@ -139,33 +140,41 @@ def check_data(data):
 
     if len(train_shape) != 3 or len(test_shape) != 3:
         raise ValueError(
-            "Train and test datasets must have 3 dimensions (n_windows, n_features, window_size)."
+            "Train and test datasets must have 3 dimensions "
+            "(n_windows, n_features, window_size)."
         )
 
     # Check if val is None or a numpy array
     if val is not None:
         if not isinstance(val, np.ndarray):
             raise ValueError(
-                "Validation element of the data tuple must be a numpy array or None."
+                "Validation element of the data tuple must be a numpy array for None."  # noqa
             )
 
         # Check dimensions for val
         val_shape = val.shape
         if len(val_shape) != 3:
             raise ValueError(
-                "Validation dataset must have 3 dimensions (n_windows, n_features, window_size)."
+                "Validation dataset must have 3 dimensions (n_windows, "
+                "n_features, window_size)."
             )
 
-        # Check if the second and third dimensions (n_features, window_size) match across all datasets
-        if train_shape[1:] != val_shape[1:] or train_shape[1:] != test_shape[1:]:
+        # Check if the second and third dimensions (n_features, window_size)
+        # match across all datasets
+        if (
+            train_shape[1:] != val_shape[1:] or train_shape[1:] != test_shape[1:]
+        ):  # noqa
             raise ValueError(
-                "The second and third dimensions (n_features, window_size) must match across train, val, and test datasets."
+                "The second and third dimensions (n_features, window_size) "
+                "must match across train, val, and test datasets."
             )
     else:
-        # Check if the second and third dimensions (n_features, window_size) match between train and test
+        # Check if the second and third dimensions (n_features, window_size)
+        # match between train and test
         if train_shape[1:] != test_shape[1:]:
             raise ValueError(
-                "The second and third dimensions (n_features, window_size) must match across train and test datasets."
+                "The second and third dimensions (n_features, window_size) "
+                "must match across train and test datasets."
             )
 
     return data
@@ -190,9 +199,9 @@ def df_fit_predict(X, model, horizon):
 
     output_list = []
     for x in X:
-        x_df_ = pd.DataFrame(
-            x.T
-        )  # x of shape (n_features, n_obs) and the models needs (n_obs, n_features)
+        # x of shape (n_features, n_obs)
+        # and the models needs (n_obs, n_features) so we transpose
+        x_df_ = pd.DataFrame(x.T)
         x_df_ = pd.DataFrame(x.T)  # shape (n_features, n_obs)
         model.fit(x_df_)
         y_ = model.predict(steps=horizon)

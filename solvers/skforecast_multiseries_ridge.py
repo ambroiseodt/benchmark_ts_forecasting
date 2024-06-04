@@ -4,7 +4,9 @@ from benchopt import BaseSolver, safe_import_context
 # - skipping import to speed up autocompletion in CLI.
 # - getting requirements info when all dependencies are not installed.
 with safe_import_context() as import_ctx:
-    from skforecast.ForecasterAutoregMultiSeries import ForecasterAutoregMultiSeries
+    from skforecast.ForecasterAutoregMultiSeries import (
+        ForecasterAutoregMultiSeries,
+    )
     from sklearn.linear_model import Ridge
     from benchmark_utils import df_fit_predict
 

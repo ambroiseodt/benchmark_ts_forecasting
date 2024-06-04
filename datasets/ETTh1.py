@@ -39,7 +39,7 @@ class Dataset(BaseDataset):
         os.system(
             f"""
             wget -O {data_path}/ETTh1.csv "https://drive.google.com/uc?&id=1vOClm_t4RgUf8nqherpTfNnB8rrYq14Q&export=download"
-            """
+            """  # noqa
         )
         data = pd.read_csv(os.path.join(data_path, "ETTh1.csv"))
 
@@ -49,8 +49,8 @@ class Dataset(BaseDataset):
         n_val = int(n * self.val_ratio)
 
         X_train = data[:n_train]
-        X_val = data[n_train : n_train + n_val]
-        X_test = data[n_train + n_val :]
+        X_val = data[n_train : n_train + n_val]  # noqa
+        X_test = data[n_train + n_val :]  # noqa
 
         # Need to scale data first
         X_train, X_val, X_test = scale_data(X_train, X_val, X_test)
