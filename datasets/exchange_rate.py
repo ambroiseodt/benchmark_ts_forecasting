@@ -54,7 +54,7 @@ class Dataset(BaseDataset):
         data = pd.read_csv(os.path.join(data_path, "exchange_rate.csv"))
         data["date"] = pd.to_datetime(data["date"])
         data = data.to_numpy()
-        data[:, 0] = data[:, 0].astype(np.datetime64)
+        data[:, 0] = data[:, 0].astype(np.datetime64).astype(np.float64)
 
         # Split the data
         n = len(data)
@@ -62,8 +62,8 @@ class Dataset(BaseDataset):
         n_val = int(n * self.val_ratio)
 
         X_train = data[:n_train]
-        X_val = data[n_train : n_train + n_val]  # noqa
-        X_test = data[n_train + n_val :]  # noqa
+        X_val = data[n_train: n_train + n_val]  # noqa
+        X_test = data[n_train + n_val:]  # noqa
 
         # Need to scale data first
         X_train, X_val, X_test = scale_data(X_train, X_val, X_test)
