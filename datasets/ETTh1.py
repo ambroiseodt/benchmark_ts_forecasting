@@ -29,7 +29,7 @@ class Dataset(BaseDataset):
 
     # List of packages needed to run the dataset. See the corresponding
     # section in objective.py
-    requirements = ["numpy"]
+    requirements = ["numpy", "pandas", "os", "requests"]
 
     def get_data(self):
         # The return arguments of this function are passed as keyword arguments
@@ -80,5 +80,17 @@ class Dataset(BaseDataset):
         )
 
         # The dictionary defines the keyword arguments for `Objective.set_data`
+
+        length = 10
+        X_train = X_train[:length]
+        y_train = y_train[:length]
+
+        X_val = X_val[:length]
+        y_val = y_val[:length]
+
+        X_test = X_test[:length]
+        y_test = y_test[:length]
+
+        print(X_train.shape, y_train.shape)
 
         return dict(X=(X_train, X_val, X_test), y=(y_train, y_val, y_test))

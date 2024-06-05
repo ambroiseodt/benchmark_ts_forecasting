@@ -7,7 +7,6 @@
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
-from warnings import warn
 
 
 def mse(X: np.array, y: np.array):
@@ -190,24 +189,7 @@ def df_fit_predict(X, model, horizon):
     --------
     np.array: Array of shape (n_windows, n_features, horizon).
     """
-
-    def reshape_and_fit(X, model):
-        """Reshape the data and fit the model.
-        The model only accepts 1 feature. The data is reshaped to
-        (n_obs, n_features) and fitted to the model."""
-        n_windows, n_features, window_size = X.shape
-        if n_features != 1:
-            warn("The model only accepts 1 feature.")
-            return
-
-        X_train_reshaped = X.transpose(1, 2, 0).reshape(n_features, -1).T
-        model.fit(pd.DataFrame(X_train_reshaped))
-
     output_list = []
-
-    if model.__class__.__name__ == "ForcasterSarimax":
-        reshape_and_fit(X, model)
-
     for x in X:
         # x is of shape (n_features, n_obs)
         # and the models needs (n_obs, n_features) so we transpose
@@ -217,11 +199,4 @@ def df_fit_predict(X, model, horizon):
         model.fit(x_df_)
         y_ = model.predict(steps=horizon)
         output_list.append(y_.to_numpy().T)
-
-        if model.__class__.__name__ == "ForecasterAutoregMultiOutput":
-            model.fit(x_df)
-
-        y_pred = model.predict(steps=horizon)
-        output_list.append(y_pred.to_numpy().T)
-
     return np.array(output_list)
