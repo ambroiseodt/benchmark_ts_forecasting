@@ -19,6 +19,15 @@ class Objective(BaseObjective):
     # URL of the main repo for this benchmark.
     url = "https://github.com/ambroiseodt/benchmark_ts_forecasting"
 
+    # List of parameters for the objective. The benchmark will consider
+    # the cross product for each key in the dictionary.
+    # All parameters 'p' defined here are available as 'self.p'.
+    # This means the OLS objective will have a parameter `self.whiten_y`.
+    parameters = {
+        "n_splits": [5],  # number of folds in the cross-validation split
+        "horizon": [10],  # number of step to predict
+    }
+
     # List of packages needed to run the benchmark.
     # They are installed with conda; to use pip, use 'pip:packagename'. To
     # install from a specific conda channel, use 'channelname:packagename'.
@@ -26,6 +35,7 @@ class Objective(BaseObjective):
     # solvers or datasets should be declared in Dataset or Solver (see
     # simulated.py and python-gd.py).
     # Example syntax: requirements = ['numpy', 'pip:jax', 'pytorch:pytorch']
+    install_cmd = "conda"
     requirements = [numpy, sklearn]
 
     # Minimal version of benchopt required to run this benchmark.
@@ -37,6 +47,7 @@ class Objective(BaseObjective):
         # returned by `Dataset.get_data`. This defines the benchmark's
         # API to pass data. This is customizable for each benchmark.
         self.X, self.y = X, y
+        self.n_samples, self.n_features = X.shape
 
         # X.shape = (n_samples, n_features)
         # Y is None
@@ -45,33 +56,65 @@ class Objective(BaseObjective):
         # This will be automatically used in `self.get_split` to split
         # the arrays provided.
         self.cv = TimeSeriesSplit(
-            n_splits=5,
+            n_splits=self.n_splits,
             max_train_size=None,
             test_size=None,
             gap=0,
         )
 
+        # Compute length of each fold
+        self.n_samples_fold = int(self.n_samples / (self.n_splits + 1))
+
         # If the cross-validation requires some metadata, it can be
         # provided in the `cv_metadata` attribute. This will be passed
         # to `self.cv.split` and `self.cv.get_n_splits`.
 
-    def evaluate_result(self, pred):
+    def evaluate_result(self, model):
+        """
+        model : object that has a .predict() method
+        """
         # The keyword arguments of this function are the keys of the
         # dictionary returned by `Solver.get_result`. This defines the
         # benchmark's API to pass solvers' result. This is customizable for
         # each benchmark.
 
-        Y_train = self.y[0]  # keep only train data
+        # Compute the prediction on the train data
+        n_pred_train = int(self.X_train.shape[0] / self.horizon)
+        new_data = self.X_train[: self.horizon]
+        mse_train, mae_train = [], []
+        for i in range(1, n_pred_train):
+            pred = model.predict(new_data, horizon=self.horizon)
+            true_data = self.X_train[i * self.horizon : (i + 1) * self.horizon]
 
-        loss_mse = mse(pred, Y_train)  # ((Y_train - pred) ** 2).mean()
+            mse_train.append(mse(pred, true_data))
+            mae_train.append(mae(pred, true_data))
 
-        loss_mae = mae(pred, Y_train)  # np.abs(Y_train - pred).mean()
+            new_data = np.r_[new_data, true_data]
+
+        loss_mse_train, loss_mae_train = np.mean(mse_train), np.mean(mae_train)
+
+        # Compute the prediction on the test data
+        n_pred_test = int(self.X_test.shape[0] / self.horizon)
+        new_data = self.X_train
+        mse_test, mae_test = [], []
+        for i in range(n_pred_test):
+            pred = model.predict(new_data, horizon=self.horizon)
+            true_data = self.X_test[i * self.horizon : (i + 1) * self.horizon]
+
+            mse_test.append(mse(pred, true_data))  # ((true_data - pred) ** 2).mean()
+            mae_test.append(mae(pred, true_data))  # np.abs(true_data - pred).mean()
+
+            new_data = np.r_[new_data, true_data]
+
+        loss_mse_test, loss_mae_test = np.mean(mse_test), np.mean(mae_test)
 
         # This method can return many metrics in a dictionary. One of these
         # metrics needs to be `value` for convergence detection purposes.
         return dict(
-            value=loss_mse,
-            loss_mae=loss_mae,
+            value=loss_mse_train,
+            loss_mae_train=loss_mae_train,
+            loss_mse_test=loss_mse_test,
+            loss_mae_test=loss_mae_test,
         )
 
     def get_one_result(self):
@@ -104,7 +147,7 @@ class Objective(BaseObjective):
         # Only the full train data, of shape (n_sample_fold, n_features),
         # is passed to the solver.
         return dict(
-            X=self.X_train,
+            X_train=self.X_train,
             # Possibly, here we can send X_test to the solver, as follows:
             # X_test=self.X_test
         )
