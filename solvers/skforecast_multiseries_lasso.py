@@ -8,7 +8,7 @@ with safe_import_context() as import_ctx:
     from skforecast.ForecasterAutoregMultiSeries import (
         ForecasterAutoregMultiSeries,
     )
-    from sklearn.linear_model import Ridge
+    from sklearn.linear_model import Lasso
     from benchmark_utils import df_fit_predict
 
 
@@ -43,7 +43,8 @@ class Solver(BaseSolver):
         # It is customizable for each benchmark.
         self.X, self.y = X, y
         self.forecaster_model = ForecasterAutoregMultiSeries(
-            regressor=Ridge(alpha=self.alpha), lags=self.lags
+            regressor=Lasso(alpha=self.alpha),
+            lags=self.lags,  # noqa
         )
 
     def run(self, n_iter):

@@ -1,19 +1,22 @@
 from benchopt import BaseDataset, safe_import_context
+from benchmark_utils import scale_data, data_windowing
 
-from sklearn.datasets import fetch_openml
 
 # Protect the import with `safe_import_context()`. This allows:
 # - skipping import to speed up autocompletion in CLI.
 # - getting requirements info when all dependencies are not installed.
 with safe_import_context() as import_ctx:
-    from benchmark_utils import data_windowing, scale_data
+    import numpy as np
+    import pandas as pd
+    import os
+    import requests
 
 
 # All datasets must be named `Dataset` and inherit from `BaseDataset`
 class Dataset(BaseDataset):
 
     # Name to select the dataset in the CLI and to display the results.
-    name = "bike_sharing_demand"
+    name = "ETTm2"
 
     # List of parameters to generate the datasets. The benchmark will consider
     # the cross product for each key in the dictionary.
@@ -27,23 +30,31 @@ class Dataset(BaseDataset):
     # List of packages needed to run the dataset. See the corresponding
     # section in objective.py
     install_cmd = "conda"
-    requirements = ["scikit-learn"]
+    requirements = ["os", "requests", "scikit-learn"]
 
     def get_data(self):
         # The return arguments of this function are passed as keyword arguments
         # to `Objective.set_data`. This defines the benchmark's
         # API to pass data. It is customizable for each benchmark.
 
-        # Fetch dataset from OpenML
-        # https://www.openml.org/search?type=data&status=active&id=44063
-        bike_sharing = fetch_openml(
-            "Bike_Sharing_Demand", version=2, as_frame=True
-        )  # noqa
-        df = bike_sharing.frame
+        # Load the data
+        data_path = os.path.join(os.path.dirname(__file__), "data/")
 
-        # Only keep a subsample of variables, the quantitative ones
-        columns = ["temp", "feel_temp", "humidity", "windspeed", "count"]
-        data = df[columns]
+        os.makedirs(data_path, exist_ok=True)
+
+        # Download the data if it does not exist
+        if not os.path.exists(os.path.join(data_path, "ETTm2.csv")):
+            url = (
+                "https://drive.google.com/uc?&id=1JweODe"
+                "Vxt6YTIRFA0ivAgZQkR3rldtbi&export=download"
+            )
+            response = requests.get(url)
+            with open(os.path.join(data_path, "ETTm2.csv"), "wb") as f:
+                f.write(response.content)
+
+        data = pd.read_csv(os.path.join(data_path, "ETTm2.csv"))
+        data = data.to_numpy()
+        data[:, 0] = data[:, 0].astype(np.datetime64).astype(np.float32)
 
         # Split the data
         n = len(data)
@@ -70,17 +81,6 @@ class Dataset(BaseDataset):
             X_test, self.window_size, self.stride, self.horizon
         )
 
-        length = 10
-        X_train = X_train[:length]
-        y_train = y_train[:length]
-
-        X_val = X_val[:length]
-        y_val = y_val[:length]
-
-        X_test = X_test[:length]
-        y_test = y_test[:length]
-
-        print(X_train.shape, y_train.shape)
-
         # The dictionary defines the keyword arguments for `Objective.set_data`
+
         return dict(X=(X_train, X_val, X_test), y=(y_train, y_val, y_test))
