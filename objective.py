@@ -55,9 +55,6 @@ class Objective(BaseObjective):
         self.X, self.y = X, y
         self.n_samples, self.n_features = X.shape
 
-        # X.shape = (n_samples, n_features)
-        # Y is None
-
         # Specify a cross-validation splitter as the `cv` attribute.
         # This will be automatically used in `self.get_split` to split
         # the arrays provided.

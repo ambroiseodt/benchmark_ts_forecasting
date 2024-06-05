@@ -34,8 +34,7 @@ class Solver(BaseSolver):
         # passing the objective to the solver.
         # It is customizable for each benchmark.
 
-        self.X_train = X_train
-        # X.shape = (n_samples_train, n_features)
+        self.X_train = X_train  # shape (n_samples_train, n_features)
 
         # Here, do desire pre-processing of X_train
 

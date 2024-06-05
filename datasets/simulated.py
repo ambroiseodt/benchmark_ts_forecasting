@@ -21,10 +21,6 @@ class Dataset(BaseDataset):
     parameters = {
         "n_features": [5],
         "n_samples": [1_000],
-        # "n_windows": [10],
-        # "window_size": [512],
-        # "horizon": [96],
-        # "random_state": [42],
     }
 
     # List of packages needed to run the dataset. See the corresponding
@@ -40,21 +36,6 @@ class Dataset(BaseDataset):
         rng = np.random.RandomState(self.random_state)
 
         X = rng.randn(self.n_samples, self.n_features)
-        y = None
-
-        # # Split the data
-        # X_train = rng.randn(self.n_windows, self.n_features, self.window_size)
-        # y_train = rng.randn(self.n_windows, self.n_features, self.horizon)
-
-        # n_windows_test = int(self.n_windows * 0.5)
-        # X_test = rng.randn(n_windows_test, self.n_features, self.window_size)
-        # y_test = rng.randn(n_windows_test, self.n_features, self.horizon)
-
-        # X = (X_train, X_test)
-        # y = (y_train, y_test)
-
-        # X = check_data(X)
-        # y = check_data(y)
 
         # The dictionary defines the keyword arguments for `Objective.set_data`
-        return dict(X=X, y=y)
+        return dict(X=X)
