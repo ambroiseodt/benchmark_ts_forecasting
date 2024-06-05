@@ -1,12 +1,11 @@
-from benchopt import BaseSolver, safe_import_context
+from benchopt import BaseSolver
+
 
 # Protect the import with `safe_import_context()`. This allows:
 # - skipping import to speed up autocompletion in CLI.
 # - getting requirements info when all dependencies are not installed.
-with safe_import_context() as import_ctx:
-    import numpy as np
 
-    # import your reusable functions here
+# import your reusable functions here
 
 
 # The benchmark solvers must be named `Solver` and
@@ -22,6 +21,7 @@ class Solver(BaseSolver):
     parameters = {
         "param1": [1],
     }
+    method = None
 
     # List of packages needed to run the solver. See the corresponding
     # section in objective.py
@@ -45,7 +45,8 @@ class Solver(BaseSolver):
         # https://benchopt.github.io/performance_curves.html
 
         # Fit develop forecast method
-        method.fit(self.X_train, n_iter)
+
+        self.method.fit(self.X_train, n_iter)
 
     class ForecastModel:
         def __init__(self, method):
@@ -71,7 +72,7 @@ class Solver(BaseSolver):
             raise NotImplementedError
 
     def get_result(self):
-        model = ForecastModel(method)
+        model = self.ForecastModel(self.method)
         # Return the result from one optimization run.
         # The outputs of this function is a dictionary which defines the
         # keyword arguments for `Objective.evaluate_result`

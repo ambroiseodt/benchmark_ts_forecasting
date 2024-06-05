@@ -6,7 +6,6 @@ from benchopt import BaseDataset, safe_import_context
 # - getting requirements info when all dependencies are not installed.
 with safe_import_context() as import_ctx:
     import numpy as np
-    from benchmark_utils import check_data
 
 
 # All datasets must be named `Dataset` and inherit from `BaseDataset`
