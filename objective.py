@@ -14,7 +14,7 @@ with safe_import_context() as import_ctx:
 class Objective(BaseObjective):
 
     # Name to select the objective in the CLI and to display the results.
-    name = "MSE"
+    name = "Time Series Forecasting"
 
     # URL of the main repo for this benchmark.
     url = "https://github.com/ambroiseodt/benchmark_ts_forecasting"
@@ -42,11 +42,12 @@ class Objective(BaseObjective):
     # simulated.py and python-gd.py).
     # Example syntax: requirements = ['numpy', 'pip:jax', 'pytorch:pytorch']
     install_cmd = "conda"
-    requirements = [numpy, sklearn]
+    requirements = ["scikit-learn"]
+
 
     # Minimal version of benchopt required to run this benchmark.
     # Bump it up if the benchmark depends on a new feature of benchopt.
-    min_benchopt_version = "1.5"
+    min_benchopt_version = "1.6"
 
     def set_data(self, X, y):
         # The keyword arguments of this function are the keys of the dictionary

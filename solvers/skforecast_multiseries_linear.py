@@ -26,13 +26,13 @@ class Solver(BaseSolver):
     # the cross product for each key in the dictionary.
     # All parameters 'p' defined here are available as 'self.p'.
     parameters = {
-        "lags": [7],
+        "lags": [5, 10, 20],
     }
 
     # List of packages needed to run the solver. See the corresponding
     # section in objective.py
     install_cmd = "conda"
-    requirements = ["sklearn, skforecast"]
+    requirements = ["scikit-learn", "pip:skforecast"]
 
     def set_objective(self, X, y):
         # Define the information received by each solver from the objective.

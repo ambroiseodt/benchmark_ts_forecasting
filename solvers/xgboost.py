@@ -10,7 +10,7 @@ class Solver(BaseSolver):
     name = "XGBoost"
 
     install_cmd = "conda"
-    requirements = ["xgboost"]
+    requirements = ["xgboost", "scikit-learn"]
 
     parameters = {
         "max_depth": [5, 10, 20],
