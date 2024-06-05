@@ -32,7 +32,7 @@ class Solver(BaseSolver):
     # List of packages needed to run the solver. See the corresponding
     # section in objective.py
     install_cmd = "conda"
-    requirements = ["scikit-learn, skforecast"]
+    requirements = ["scikit-learn", "skforecast"]
 
     def set_objective(self, X, y):
         # Define the information received by each solver from the objective.
