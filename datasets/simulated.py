@@ -28,7 +28,8 @@ class Dataset(BaseDataset):
 
     # List of packages needed to run the dataset. See the corresponding
     # section in objective.py
-    requirements = []
+    install_cmd = "conda"
+    requirements = ["scikit-learn"]
 
     def get_data(self):
         # The return arguments of this function are passed as keyword arguments

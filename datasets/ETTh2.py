@@ -29,7 +29,8 @@ class Dataset(BaseDataset):
 
     # List of packages needed to run the dataset. See the corresponding
     # section in objective.py
-    requirements = ["numpy", "pandas", "os", "requests"]
+    install_cmd = "conda"
+    requirements = ["os", "requests", "scikit-learn"]
 
     def get_data(self):
         # The return arguments of this function are passed as keyword arguments
@@ -60,8 +61,8 @@ class Dataset(BaseDataset):
         n_val = int(n * self.val_ratio)
 
         X_train = data[:n_train]
-        X_val = data[n_train : n_train + n_val]  # noqa
-        X_test = data[n_train + n_val :]  # noqa
+        X_val = data[n_train: n_train + n_val]  # noqa
+        X_test = data[n_train + n_val:]  # noqa
 
         # Need to scale data first
         X_train, X_val, X_test = scale_data(X_train, X_val, X_test)
