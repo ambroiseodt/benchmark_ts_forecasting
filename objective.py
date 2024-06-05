@@ -25,6 +25,7 @@ class Objective(BaseObjective):
     # solvers or datasets should be declared in Dataset or Solver (see
     # simulated.py and python-gd.py).
     # Example syntax: requirements = ['numpy', 'pip:jax', 'pytorch:pytorch']
+    install_cmd = "conda"
     requirements = ["scikit-learn"]
 
     # Minimal version of benchopt required to run this benchmark.
