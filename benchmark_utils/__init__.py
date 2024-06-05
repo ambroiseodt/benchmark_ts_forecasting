@@ -3,10 +3,12 @@
 # name `benchmark_utils`, and code defined inside will be importable using
 # the usual import syntax
 
+from benchopt.utils import safe_import_context
 
-import numpy as np
-import pandas as pd
-from sklearn.preprocessing import StandardScaler
+with safe_import_context() as import_ctx:
+    import numpy as np
+    import pandas as pd
+    from sklearn.preprocessing import StandardScaler
 
 
 def mse(X: np.array, y: np.array):
