@@ -65,17 +65,4 @@ class Solver(BaseSolver):
                 The number of steps to predict
 
             Returns
-            -------
-            pred : np.ndarray, shape (horizon, n_features)
-                The predicted data
-            """
-            raise NotImplementedError
-
-    def get_result(self):
-        model = ForecastModel(method)
-        # Return the result from one optimization run.
-        # The outputs of this function is a dictionary which defines the
-        # keyword arguments for `Objective.evaluate_result`
-        # This defines the benchmark's API for solvers' results.
-        # it is customizable for each benchmark.
-        return dict(model=model)
+          

@@ -118,10 +118,7 @@ class Objective(BaseObjective):
 
         def compute_metrics_from_pred(X, pred):
             true_data = X[self.eval_window_size :]
-            loss_mse = mse(pred, true_data)
-            loss_mae = mae(pred, true_data)
-
-            return loss_mse, loss_mae
+            return mse(pred, true_data), mae(pred, true_data)
 
         # Compute the evaluation metrics on the train data
         pred_train = get_pred(self.X_train)
