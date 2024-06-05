@@ -24,8 +24,14 @@ class Objective(BaseObjective):
     # All parameters 'p' defined here are available as 'self.p'.
     # This means the OLS objective will have a parameter `self.whiten_y`.
     parameters = {
+        # Parameters for cv-split
         "n_splits": [5],  # number of folds in the cross-validation split
-        "horizon": [10],  # number of step to predict
+        # Parameters for evaluate results
+        "eval_window_size": [512],  # size of the initial window for prediction
+        "fixed_window_size": [
+            True
+        ],  # If False, will increase the window by 'horizon' steps after each sub-evaluation
+        "horizon": [32],  # number of step to predict
     }
 
     # List of packages needed to run the benchmark.
@@ -62,8 +68,12 @@ class Objective(BaseObjective):
             gap=0,
         )
 
-        # Compute length of each fold
+        # Compute length of one fold
         self.n_samples_fold = int(self.n_samples / (self.n_splits + 1))
+
+        assert (
+            self.eval_window_size + self.horizon <= self.n_samples_fold
+        ), "The number of data in each fold is smaller than the needed number of data for evaluation. Decrease the number of splits and/or the size of the evaluation window size."
 
         # If the cross-validation requires some metadata, it can be
         # provided in the `cv_metadata` attribute. This will be passed
@@ -71,42 +81,57 @@ class Objective(BaseObjective):
 
     def evaluate_result(self, model):
         """
-        model : object that has a .predict() method
+        model : instance of ForecastModel that has a .predict() method
         """
         # The keyword arguments of this function are the keys of the
         # dictionary returned by `Solver.get_result`. This defines the
         # benchmark's API to pass solvers' result. This is customizable for
         # each benchmark.
 
-        # Compute the prediction on the train data
-        n_pred_train = int(self.X_train.shape[0] / self.horizon)
-        new_data = self.X_train[: self.horizon]
-        mse_train, mae_train = [], []
-        for i in range(1, n_pred_train):
-            pred = model.predict(new_data, horizon=self.horizon)
-            true_data = self.X_train[i * self.horizon : (i + 1) * self.horizon]
+        def get_pred(X):
+            """
+            Compute the sliding forecast predictions for a given nd.array
+            """
+            n_pred = int(
+                (X.shape[0] - self.eval_window_size) / self.horizon
+            )  # number of sub-evaluation possible
 
-            mse_train.append(mse(pred, true_data))
-            mae_train.append(mae(pred, true_data))
+            # Initialize the data to compute the prediction from
+            new_data = X[: self.eval_window_size]
 
-            new_data = np.r_[new_data, true_data]
+            predictions = []
+            for i in range(n_pred):
+                predictions.append(model.predict(new_data, horizon=self.horizon))
 
-        loss_mse_train, loss_mae_train = np.mean(mse_train), np.mean(mae_train)
+                next_data = X[
+                    self.eval_window_size
+                    + i * self.horizon : self.eval_window_size
+                    + (i + 1) * self.horizon
+                ]
+                new_data = np.r_[new_data, next_data]
 
-        # Compute the prediction on the test data
-        n_pred_test = int(self.X_test.shape[0] / self.horizon)
-        new_data = self.X_train
-        mse_test, mae_test = [], []
-        for i in range(n_pred_test):
-            pred = model.predict(new_data, horizon=self.horizon)
-            true_data = self.X_test[i * self.horizon : (i + 1) * self.horizon]
+                if self.fixed_window_size:
+                    # Remove the first samples to keep new_data at a fixed size
+                    new_data = new_data[self.horizon :]
 
-            mse_test.append(mse(pred, true_data))  # ((true_data - pred) ** 2).mean()
-            mae_test.append(mae(pred, true_data))  # np.abs(true_data - pred).mean()
+            return np.concatenate(predictions)
 
-            new_data = np.r_[new_data, true_data]
+        def compute_metrics_from_pred(X, pred):
+            true_data = X[self.eval_window_size :]
+            loss_mse = mse(pred, true_data)
+            loss_mae = mae(pred, true_data)
 
-        loss_mse_test, loss_mae_test = np.mean(mse_test), np.mean(mae_test)
+            return loss_mse, loss_mae
+
+        # Compute the evaluation metrics on the train data
+        pred_train = get_pred(self.X_train)
+        loss_mse_train, loss_mae_train = compute_metrics_from_pred(
+            self.X_train, pred_train
+        )
+
+        # Compute the evaluation metrics on the test data
+        pred_test = get_pred(self.X_test)
+        loss_mse_test, loss_mae_test = compute_metrics_from_pred(self.X_test, pred_test)
 
         # This method can return many metrics in a dictionary. One of these
         # metrics needs to be `value` for convergence detection purposes.
