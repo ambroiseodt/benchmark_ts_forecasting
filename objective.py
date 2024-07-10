@@ -28,9 +28,7 @@ class Objective(BaseObjective):
         "n_splits": [5],  # number of folds in the cross-validation split
         # Parameters for evaluate results
         "eval_window_size": [512],  # size of the initial window for prediction
-        "fixed_window_size": [
-            True
-        ],
+        "fixed_window_size": [True],
         # If False, will increase the window by 'horizon'
         # steps after each sub-evaluation
         "horizon": [32],  # number of step to predict
@@ -48,7 +46,7 @@ class Objective(BaseObjective):
 
     # Minimal version of benchopt required to run this benchmark.
     # Bump it up if the benchmark depends on a new feature of benchopt.
-    min_benchopt_version = "1.6"
+    min_benchopt_version = "1.5"
 
     def set_data(self, X, y):
         # The keyword arguments of this function are the keys of the dictionary
@@ -70,9 +68,7 @@ class Objective(BaseObjective):
         # Compute length of one fold
         self.n_samples_fold = int(self.n_samples / (self.n_splits + 1))
 
-        assert (
-            self.eval_window_size + self.horizon <= self.n_samples_fold
-        ), (
+        assert self.eval_window_size + self.horizon <= self.n_samples_fold, (
             "The number of data in each fold is smaller than the needed number"
             "of data for evaluation. Decrease the number of splits and/or the "
             "size of the evaluation window size."
