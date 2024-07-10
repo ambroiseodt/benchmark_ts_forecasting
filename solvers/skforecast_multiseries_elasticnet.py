@@ -19,7 +19,7 @@ with safe_import_context() as import_ctx:
 class Solver(BaseSolver):
 
     # Name to select the solver in the CLI and to display the results.
-    name = "skforecast_multiseries_linear"
+    name = "skforecast_multiseries_elastic"
 
     # To run only once the solver
     stopping_criterion = SingleRunCriterion()
