@@ -46,7 +46,7 @@ class Objective(BaseObjective):
 
     # Minimal version of benchopt required to run this benchmark.
     # Bump it up if the benchmark depends on a new feature of benchopt.
-    min_benchopt_version = "1.5"  # "1.6"
+    min_benchopt_version = "1.5"
 
     def set_data(self, X, y):
         # The keyword arguments of this function are the keys of the dictionary
@@ -100,23 +100,24 @@ class Objective(BaseObjective):
 
             predictions = []
             for i in range(n_pred):
-                predictions.append(model.predict(new_data, horizon=self.horizon))
+                predictions.append(model.predict(
+                    new_data, horizon=self.horizon))
 
                 next_data = X[
                     self.eval_window_size
-                    + i * self.horizon : self.eval_window_size
+                    + i * self.horizon: self.eval_window_size
                     + (i + 1) * self.horizon
                 ]
                 new_data = np.r_[new_data, next_data]
 
                 if self.fixed_window_size:
                     # Remove the first samples to keep new_data at a fixed size
-                    new_data = new_data[self.horizon :]
+                    new_data = new_data[self.horizon:]
 
             return np.concatenate(predictions)
 
         def compute_metrics_from_pred(X, pred):
-            true_data = X[self.eval_window_size :]
+            true_data = X[self.eval_window_size:]
             return mse(pred, true_data), mae(pred, true_data)
 
         # Compute the evaluation metrics on the train data
@@ -127,7 +128,8 @@ class Objective(BaseObjective):
 
         # Compute the evaluation metrics on the test data
         pred_test = get_pred(self.X_test)
-        loss_mse_test, loss_mae_test = compute_metrics_from_pred(self.X_test, pred_test)
+        loss_mse_test, loss_mae_test = compute_metrics_from_pred(
+            self.X_test, pred_test)
 
         # This method can return many metrics in a dictionary. One of these
         # metrics needs to be `value` for convergence detection purposes.
