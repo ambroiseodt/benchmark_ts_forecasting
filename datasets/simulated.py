@@ -20,12 +20,18 @@ class Dataset(BaseDataset):
     parameters = {
         "n_features": [5],
         "n_samples": [1_000],
+        "random_state": [42],
     }
 
     # List of packages needed to run the dataset. See the corresponding
     # section in objective.py
     install_cmd = "conda"
     requirements = ["scikit-learn"]
+
+    def __init__(self, n_features=5, n_samples=1000, random_state=42):
+        self.n_features = n_features
+        self.n_samples = n_samples
+        self.random_state = random_state
 
     def get_data(self):
         # The return arguments of this function are passed as keyword arguments
@@ -36,6 +42,6 @@ class Dataset(BaseDataset):
         rng = np.random.RandomState(self.random_state)
 
         X = rng.randn(self.n_samples, self.n_features)
+        y = rng.randn(self.n_samples)
 
-        # The dictionary defines the keyword arguments for `Objective.set_data`
-        return dict(X=X)
+        return dict(X=X, y=y)
